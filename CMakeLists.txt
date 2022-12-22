@@ -13,7 +13,27 @@ find_package(rclcpp REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(yaml-cpp REQUIRED)
-find_package(GRAPHICSMAGICKCPP REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(map_server_msgs REQUIRED)
+
+include_directories(
+  include
+  ${OpenCV_INCLUDE_DIRS}
+)
+
+add_executable(
+  ${PROJECT_NAME} src/map_server.cpp
+)
+
+ament_target_dependencies(
+  ${PROJECT_NAME} 
+  rclcpp
+  nav_msgs
+  std_msgs
+  yaml-cpp
+  OpenCV
+  map_server_msgs
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

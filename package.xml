@@ -13,7 +13,8 @@
   <depend>nav_msgs</depend>
   <depend>std_msgs</depend>
   <depend>yaml-cpp</depend>
-  <depend>graphicsmagick</depend>
+  <depend>opencv</depend>
+  <depend>map_server_msgs</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
