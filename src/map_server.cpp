@@ -3,6 +3,9 @@
 #include "map_server_msgs/srv/load_map.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "tf2_ros/transform_listener.h"
+#include "tf2/convert.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
+#include "geometry_msgs/msg/quaternion.hpp"
 
 #include "map_server/map_server.hpp"
 
@@ -32,7 +35,7 @@ const char * map_mode_to_string(MapMode map_mode)
 }
 
 
-Parameters loadMapFromFile(const string map_url)
+Parameters loadMapFromFile(const std::string map_url)
 {
 
     //process by request begin
@@ -41,17 +44,17 @@ Parameters loadMapFromFile(const string map_url)
     // nav_msgs::msg::OccupancyGrid msg;
     doc = YAML::LoadFile(map_url);
     // auto image_file_name = yaml_get_value<std::string>(doc, "image");
-    auto image_file_name = doc["image"].as<MapMode>();
+    auto image_file_name = doc["image"].as<std::string>();
 
     //test begin
     parameters.image_file_name = image_file_name;
     parameters.resolution = doc["resolution"].as<double>();
     parameters.origin = doc["origin"].as<std::vector<double>>();
-    parameters.free_thresh = doc["free_thresh"].as<std::vector>();
+    parameters.free_thresh = doc["free_thresh"].as<double>();
     parameters.occupied_thresh = doc["occupied_thresh"].as<double>();
 
     auto map_mode_node = doc["mode"].as<std::string>();
-    parameters.mode = map_mode_to_string(map_mode_node);
+    // parameters.mode = map_mode_to_string(map_mode_node);
 
     try{
         parameters.negate = doc["negate"].as<int>();
@@ -72,11 +75,11 @@ Parameters loadMapFromFile(const string map_url)
     for(; it!=it_end; it++)
     {
         double occ = (0 ? (static_cast<float>(*it) / 255.0) : ((255.0 - static_cast<float>(*it)) / 255.0));
-        if(occupied_thresh < occ)
+        if(parameters.occupied_thresh < occ)
         {
             *it = static_cast<int8_t>(nav_util::OCC_GRID_OCCUPIED);
         }
-        else if(occupied_thresh > occ)
+        else if(parameters.occupied_thresh > occ)
         {
             *it = static_cast<int8_t>(nav_util::OCC_GRID_FREE);
         }   
@@ -90,8 +93,8 @@ Parameters loadMapFromFile(const string map_url)
     return parameters; 
 }
 
-void publishmap(const std::shared_ptr<map_server_msgs::srv::LoadMap>::Request request,
-                std::shared_ptr<map_server_msgs::srv::LoadMap>::Response response)
+void publishmap(const std::shared_ptr<map_server_msgs::srv::LoadMap::Request> request,
+                std::shared_ptr<map_server_msgs::srv::LoadMap::Response> response)
 {
     Parameters parameters = loadMapFromFile(request->map_url);
 
